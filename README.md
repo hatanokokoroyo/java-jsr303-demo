@@ -1,2 +1,24 @@
-# java-jsr303-demo
-Demo to show how to use jsr-303 in a spring boot project
+# JSR 303
+
+什么是jsr303?
+
+如何引入, 在spring中如何引入?
+
+能够使用的注解, 功能
+
+如何自定义注解
+* 组合注解
+* 自定义校验器
+* 注解数组
+
+如何在controller以外的地方使用
+
+## 基本的使用
+
+
+
+## @Valid和@Validate的区别
+
+* 包的位置, 来源
+* 分组
+* 嵌套校验
