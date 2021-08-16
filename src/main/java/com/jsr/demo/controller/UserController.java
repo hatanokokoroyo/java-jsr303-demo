@@ -1,16 +1,21 @@
 package com.jsr.demo.controller;
 
 import com.jsr.demo.dao.UserMapper;
+import com.jsr.demo.dto.PageParam;
 import com.jsr.demo.dto.UserNormalValidDto;
+import com.jsr.demo.dto.UserQuery;
+import com.jsr.demo.dto.UserSavePayInfoValidDto;
 import com.jsr.demo.model.User;
 import org.springframework.beans.BeanUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 
 @RestController
@@ -22,6 +27,25 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
+    // ==========================================展示三种异常的抛出===================================================
+
+    /**
+     * 抛出BindException
+     */
+    @GetMapping("/getUser0")
+    public PageParam<User> getUser0(@Validated UserQuery userQuery) {
+        return new PageParam<>();
+    }
+
+    /**
+     * 抛出MethodArgumentNotValidException
+     */
+    @PostMapping("/getUser1")
+    public PageParam<User> getUser1(@Validated @RequestBody UserQuery userQuery) {
+        return new PageParam<>();
+    }
+    // ==========================================展示各种注解的用法===================================================
+
     /**
      * 展示一下@Valid和@Validated的基本的校验功能
      * 配合全局异常捕获
@@ -29,9 +53,7 @@ public class UserController {
     @PostMapping("/save0")
     public void save0(@Validated(UserNormalValidDto.Save.class) @RequestBody UserNormalValidDto dto) {
         // 校验通过, 执行保存操作
-        User user = new User();
-        BeanUtils.copyProperties(dto, user);
-        userMapper.saveUser(user);
+        userMapper.saveUser(dto);
     }
 
     /**
@@ -54,18 +76,21 @@ public class UserController {
             throw new BindException(bindingResult);
         }
         // 执行保存操作
-        User user = new User();
-        BeanUtils.copyProperties(dto, user);
-        userMapper.saveUser(user);
+        userMapper.saveUser(dto);
     }
 
-    @PostMapping("/updateName")
+    @PutMapping("/updateName")
     public void updateName(@Validated(UserNormalValidDto.UpdateName.class) @RequestBody UserNormalValidDto dto) {
-
+        userMapper.updateUserNameById(dto);
     }
 
-    @PostMapping("/updatePhone")
+    @PutMapping("/updatePhone")
     public void updatePhone(@Validated(UserNormalValidDto.UpdatePhone.class) @RequestBody UserNormalValidDto dto) {
+        userMapper.updateUserPhoneById(dto);
+    }
 
+    @PostMapping("/userPayInfo")
+    public void saveUserPayInfo(@Validated @RequestBody UserSavePayInfoValidDto dto) {
+        userMapper.saveUserPayInfo(dto);
     }
 }

@@ -14,6 +14,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BindException.class)
     public ResponseEntity<String> bindExceptionHandler(BindException e) {
+        System.out.println("捕获到BindException");
         StringBuilder builder = new StringBuilder();
         // 获取所有的错误参数校验结果, 并将message进行拼接
         List<ObjectError> allErrors = e.getAllErrors();
