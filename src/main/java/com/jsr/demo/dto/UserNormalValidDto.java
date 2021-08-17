@@ -12,7 +12,7 @@ public class UserNormalValidDto {
      * 不可为空且长度必须在5-20
      */
     @NotNull(message = "name不能为空", groups = {Save.class, UpdateName.class})
-    @Length(min = 5, max = 20, message = "名称长度必须在5-20", groups = {Save.class})
+    @Length(min = 5, max = 20, message = "名称长度必须在5-20", groups = {Save.class, UpdateName.class})
     private String name;
 
     /**

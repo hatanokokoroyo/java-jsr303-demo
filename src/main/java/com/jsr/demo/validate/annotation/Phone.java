@@ -2,7 +2,12 @@ package com.jsr.demo.validate.annotation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
+import javax.validation.constraints.NotBlank;
 import java.lang.annotation.*;
+
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.ElementType.TYPE_USE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * 验证手机号, 空和正确的手机号都能通过校验
@@ -23,7 +28,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(validatedBy = PhoneValidator.class)
-@Repeatable(value = PhoneHints.class)
+@Repeatable(value = Phone.List.class)
 public @interface Phone {
 
     /**
@@ -50,4 +55,11 @@ public @interface Phone {
      * 自定义属性, 是否允许手机号为null
      */
     boolean allowNull() default true;
+
+    @Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+    @Retention(RUNTIME)
+    @Documented
+    public @interface List {
+        Phone[] value();
+    }
 }

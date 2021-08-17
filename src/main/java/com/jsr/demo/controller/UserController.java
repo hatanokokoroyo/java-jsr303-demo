@@ -5,26 +5,24 @@ import com.jsr.demo.dto.PageParam;
 import com.jsr.demo.dto.UserNormalValidDto;
 import com.jsr.demo.dto.UserQuery;
 import com.jsr.demo.dto.UserSavePayInfoValidDto;
+import com.jsr.demo.exception.BusinessException;
 import com.jsr.demo.model.User;
-import org.springframework.beans.BeanUtils;
+import com.jsr.demo.util.ValidationUtil;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
     private final UserMapper userMapper;
+    private final ValidationUtil validationUtil;
 
-    public UserController(UserMapper userMapper) {
+    public UserController(UserMapper userMapper, ValidationUtil validationUtil) {
         this.userMapper = userMapper;
+        this.validationUtil = validationUtil;
     }
 
     // ==========================================展示三种异常的抛出===================================================
@@ -92,5 +90,12 @@ public class UserController {
     @PostMapping("/userPayInfo")
     public void saveUserPayInfo(@Validated @RequestBody UserSavePayInfoValidDto dto) {
         userMapper.saveUserPayInfo(dto);
+    }
+
+    // ==========================================展示非注解式校验===================================================
+    @PostMapping("save2")
+    public void save2(@RequestBody UserNormalValidDto dto) throws BusinessException {
+        validationUtil.validate(dto, UserNormalValidDto.Save.class);
+        userMapper.saveUser(dto);
     }
 }
