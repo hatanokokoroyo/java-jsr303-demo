@@ -1,2 +1,35 @@
 server:
   port: 8080
+mail:
+  coozo:
+    host: smtp.exmail.qq.com
+    port: 465
+    username: service@coozo.com
+    password: s7dtUD3ZMSxGdhfw
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+  lzk:
+    host: smtp.exmail.qq.com
+    port: 465
+    username: zekun.l@businessmatics.io
+    password: sY29c9SGEAejbsJf
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+test:
+  map:
+    data0: 0
+    data1: 1

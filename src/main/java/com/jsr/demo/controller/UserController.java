@@ -7,22 +7,30 @@ import com.jsr.demo.dto.UserQuery;
 import com.jsr.demo.dto.UserSavePayInfoValidDto;
 import com.jsr.demo.exception.BusinessException;
 import com.jsr.demo.model.User;
+import com.jsr.demo.service.UserInfoService;
+import com.jsr.demo.util.JsonUtil;
 import com.jsr.demo.util.ValidationUtil;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
+@Validated
 public class UserController {
     private final UserMapper userMapper;
     private final ValidationUtil validationUtil;
+    private final UserInfoService userInfoService;
 
-    public UserController(UserMapper userMapper, ValidationUtil validationUtil) {
+    public UserController(UserMapper userMapper, ValidationUtil validationUtil, UserInfoService userInfoService) {
         this.userMapper = userMapper;
         this.validationUtil = validationUtil;
+        this.userInfoService = userInfoService;
     }
 
     // ==========================================展示三种异常的抛出===================================================
@@ -97,5 +105,20 @@ public class UserController {
     public void save2(@RequestBody UserNormalValidDto dto) throws BusinessException {
         validationUtil.validate(dto, UserNormalValidDto.Save.class);
         userMapper.saveUser(dto);
+    }
+
+    @PostMapping("testService")
+    public void testService(@RequestBody UserQuery dto) {
+        userInfoService.testService(dto);
+    }
+
+    @PostMapping("testService2")
+    public void testService2(@RequestBody UserNormalValidDto dto) {
+        userInfoService.testService2(dto);
+    }
+
+    @PostMapping("/testList")
+    public void testList(@RequestBody @Valid @NotEmpty List<UserQuery> param) {
+        System.out.println(JsonUtil.toJsonString(param));
     }
 }

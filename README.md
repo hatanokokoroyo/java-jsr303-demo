@@ -272,6 +272,7 @@ public @interface Sex {
      * 扩展用
      */
     Class<? extends Payload>[] payload() default {};
+  
 }
 ```
 
@@ -483,6 +484,8 @@ public class ValidationUtil {
         }
         throw new BusinessException("000001", builder.toString());
     }
+  
+  
 }
 ```
 
@@ -501,4 +504,7 @@ public class UserServiceImpl implement UserService{
 
 
 
-[参考文章](https://segmentfault.com/a/1190000023471742)
+[参考文章1](https://segmentfault.com/a/1190000023471742)
+
+[参考文章2](https://www.chkui.com/article/java/java_bean_validation)
+

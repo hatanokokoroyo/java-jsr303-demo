@@ -1,34 +1,36 @@
 package com.jsr.demo.dto;
 
+import com.jsr.demo.service.UserInfoService;
 import com.jsr.demo.validate.annotation.Phone;
+import com.jsr.demo.validate.annotation.Sex;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.*;
 
 public class UserNormalValidDto {
-    @NotBlank(message = "userId不能为空", groups = {UpdateName.class, UpdatePhone.class})
+    @NotBlank(message = "userId不能为空")
     private String userId;
     /**
      * 不可为空且长度必须在5-20
      */
-    @NotNull(message = "name不能为空", groups = {Save.class, UpdateName.class})
-    @Length(min = 5, max = 20, message = "名称长度必须在5-20", groups = {Save.class, UpdateName.class})
+    @NotNull(message = "name不能为空", groups = {Save.class, UpdateName.class, UserInfoService.TestService2.class})
+    @Length(min = 5, max = 20, message = "名称长度必须在5-20", groups = {Save.class, UpdateName.class, UserInfoService.TestService2.class})
     private String name;
 
     /**
      * 不可为空且必须大于1
      */
-    @NotNull(message = "age不能为空", groups = {Save.class})
-    @Min(value = 1, message = "age必须大于等于1", groups = {Save.class})
+    @NotNull(message = "age不能为空", groups = {Save.class, UserInfoService.TestService2.class})
+    @Min(value = 1, message = "age必须大于等于1", groups = {Save.class, UserInfoService.TestService2.class})
     private Integer age;
 
     /**
      * 可以为空, 非空情况下必须是0或1
      * 可以多个注解组合成一个自定义注解(无自定义校验器)
      */
-    @Min(value = 0, message = "sex必须是0或1")
-    @Max(value = 1, message = "sex必须是0或1")
-//    @Sex(groups = {Save.class})
+//    @Min(value = 0, message = "sex必须是0或1")
+//    @Max(value = 1, message = "sex必须是0或1")
+    @Sex(groups = {Save.class, UserInfoService.TestService2.class})
     private Integer sex;
 
     /**
@@ -36,7 +38,7 @@ public class UserNormalValidDto {
      * 默认校验器 org.hibernate.validator.internal.constraintvalidators.AbstractEmailValidator
      * 如果有需求, 可以自己填写正则规则 @Email(message = "请输入合法的邮箱地址", regexp = ".*")
      */
-    @Email(message = "请输入合法的邮箱地址", groups = {Save.class})
+    @Email(message = "请输入合法的邮箱地址", groups = {Save.class, UserInfoService.TestService2.class})
     private String email;
 
     /**
@@ -44,9 +46,11 @@ public class UserNormalValidDto {
      * 可以为空, 非空情况下必须是合法的手机号
      * 如果部分参数需要根据不同的group使用不同的参数, 可以定义Hints
      */
-    @Phone(message = "请输入正确的手机号", groups = {Save.class, UpdatePhone.class})
-//    @Phone(message = "请输入正确的手机号", groups = {Save.class})
-//    @Phone(message = "请输入正确的手机号", allowNull = false, groups = {UpdatePhone.class})
+//    @Phone(message = "请输入正确的手机号", groups = {Save.class, UpdatePhone.class})
+
+
+    @Phone(message = "请输入正确的手机号", groups = {Save.class, UserInfoService.TestService2.class})
+    @Phone(message = "手机号错误", allowNull = false, groups = {UpdatePhone.class, UserInfoService.TestService2.class})
     private String phone;
 
     public interface Save {
