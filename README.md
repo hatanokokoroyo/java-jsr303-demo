@@ -508,3 +508,62 @@ public class UserServiceImpl implement UserService{
 
 [参考文章2](https://www.chkui.com/article/java/java_bean_validation)
 
+
+## 补充: 如何在service层使用注解进行校验
+
+首先需要配置校验器
+```java
+@Configuration
+public class ValidatorExtensionAutoConfiguration {
+
+    @Bean
+    public MethodValidationPostProcessor methodValidationPostProcessor() {
+        System.out.println("初始化methodValidationPostProcessor");
+        MethodValidationPostProcessor postProcessor = new MethodValidationPostProcessor();
+        postProcessor.setValidator(validator());
+        return postProcessor;
+    }
+
+
+    @Bean
+    public Validator validator() {
+        System.out.println("初始化validator");
+        ValidatorFactory validatorFactory = Validation
+                .byProvider(HibernateValidator.class)
+                .configure()
+                // 允许@Overide方法的参数添加interface上没有的注解
+                .allowOverridingMethodAlterParameterConstraint(true)
+                // .allowParallelMethodsDefineParameterConstraints(true)
+                .failFast(false)
+                .buildValidatorFactory();
+        return validatorFactory.getValidator();
+    }
+}
+```
+
+### 方式1
+
+在interface类上增加@Validated, 在要校验的方法参数前, 增加@Valid
+实现类的方法入参上, 应该与interface的保持一致(没有也不影响)
+
+### 方式2
+
+在impl类上增加@Validated, 在要校验的方法参数前, 增加@Valid
+同时Validator还需要增加allowOverridingMethodAlterParameterConstraint的配置项, 不然会因为impl方法和interface方法的签名不一致而抛出异常
+
+### 方式3
+
+在interface的方法参数前增加@Valid
+实现类上增加@Validated, 要校验的方法参数前增加@Valid(没有也不影响)
+
+但是以上三种方式都不支持service层的分组参数校验
+
+### 方式4 支持service层分组校验
+
+在interface类上增加@Validated, 方法上增加@Validated(groups = {要校验的分组}), 要校验的方法参数前增加@Valid
+
+注意, 在创建分组类的时候, 可以在入参类的内部创建interface来用作分组
+
+部分文章会提到在interface层的方法上使用@interface来创建接口用于分组, 但是只要加上这个注解, 就会导致对应方法的分组校验失效, 原因未知
+
+所以还是推荐在入参类中创建interface用于分组
