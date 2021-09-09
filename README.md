@@ -516,6 +516,9 @@ public class UserServiceImpl implement UserService{
 @Configuration
 public class ValidatorExtensionAutoConfiguration {
 
+  	/**
+  	* 增加方法校验处理器, 没有这个service层的校验不会生效
+  	*/
     @Bean
     public MethodValidationPostProcessor methodValidationPostProcessor() {
         System.out.println("初始化methodValidationPostProcessor");
@@ -533,7 +536,7 @@ public class ValidatorExtensionAutoConfiguration {
                 .configure()
                 // 允许@Overide方法的参数添加interface上没有的注解
                 .allowOverridingMethodAlterParameterConstraint(true)
-                // .allowParallelMethodsDefineParameterConstraints(true)
+          			// 是否检查到第一个失败的参数就返回
                 .failFast(false)
                 .buildValidatorFactory();
         return validatorFactory.getValidator();
@@ -541,24 +544,50 @@ public class ValidatorExtensionAutoConfiguration {
 }
 ```
 
-### 方式1
+### 例1 无分组校验
 
 在interface类上增加@Validated, 在要校验的方法参数前, 增加@Valid
-实现类的方法入参上, 应该与interface的保持一致(没有也不影响)
+实现类的方法入参上, 应该与interface的保持一致(没有也不影响, 单还是建议保持一致)
 
-### 方式2
+```java
+@Validated
+public interface ValidateService {
+    String test1(@Valid ValidateParam param);
+}
+
+@Service
+public class ValidateServiceImpl implements ValidateService {
+    @Override
+    public String test1(@Valid ValidateParam param) {
+        // pass
+        return null;
+    }
+}
+```
+
+### 例2 无分组校验
 
 在impl类上增加@Validated, 在要校验的方法参数前, 增加@Valid
-同时Validator还需要增加allowOverridingMethodAlterParameterConstraint的配置项, 不然会因为impl方法和interface方法的签名不一致而抛出异常
+同时Validator还需要增加allowOverridingMethodAlterParameterConstraint的配置项, 不然会因为impl方法和interface方法的签名不一致而抛出异常(如果在interface的方法参数前加@Valid也可以避免)
 
-### 方式3
+```java
+public interface ValidateService {
+    String test1(ValidateParam param);
+  	// String test1(@Valid ValidateParam param);
+}
 
-在interface的方法参数前增加@Valid
-实现类上增加@Validated, 要校验的方法参数前增加@Valid(没有也不影响)
+@Validated
+@Service
+public class ValidateServiceImpl implements ValidateService {
+    @Override
+    public String test1(@Valid ValidateParam param) {
+        // pass
+        return null;
+    }
+}
+```
 
-但是以上三种方式都不支持service层的分组参数校验
-
-### 方式4 支持service层分组校验
+### 例3 分组校验
 
 在interface类上增加@Validated, 方法上增加@Validated(groups = {要校验的分组}), 要校验的方法参数前增加@Valid
 
@@ -567,3 +596,91 @@ public class ValidatorExtensionAutoConfiguration {
 部分文章会提到在interface层的方法上使用@interface来创建接口用于分组, 但是只要加上这个注解, 就会导致对应方法的分组校验失效, 原因未知
 
 所以还是推荐在入参类中创建interface用于分组
+
+```java
+@Validated
+public interface ValidateService {
+    @Validated(value = ValidateServiceParam.Test1.class)
+    String test1(@Valid ValidateParam param);
+  
+    @Validated(value = ValidateServiceParam.Test2.class)
+  	String test2(@Valid ValidateParam param);
+}
+
+@Service
+public class ValidateServiceImpl implements ValidateService {
+    @Override
+    public String test1(@Valid ValidateParam param) {
+        // pass
+        return null;
+    }
+  
+  	@Override
+    public String test2(@Valid ValidateParam param) {
+        // pass
+        return null;
+    }
+}
+
+@Data
+public class ValidateParam {
+    @NotNull(groups = Test1.class, message = "name can not be null")
+    private String name;
+
+    @NotNull(groups = Test2.class, message = "age can not be null")
+    private Integer age;
+
+    @NotNull(message = "sex can not be null", groups = {Test1.class, Test2.class})
+    private Integer sex;
+  
+  	public interface Test1{}
+    public interface Test2{}
+}
+```
+
+### 例4 无interface的service分组校验
+
+在类上增加@Validated, 方法上增加@Validated(groups = {要校验的分组}), 要校验的方法参数前增加@Valid
+
+```java
+@Validated
+@Service
+public class ValidateService {
+    @Validated(value = {ValidateServiceParam.Test1.class})
+    public String test1(@Valid ValidateServiceParam param) {
+        return JsonUtil.toJsonString(param);
+    }
+}
+
+```
+
+### 其他注意事项
+
+* 在部分博客文章里, 有提到可以在interface的方法上添加@interface注解生成接口, 用这个分组参数
+
+  这种方式会导致service层的分组校验失败, 只有没有添加分组的参数会进行校验, 使用时需要注意. 原理暂时不明, 感兴趣的话可以自行研究一下
+
+  ```java
+  @Validated
+  public interface ValidateService {
+    	@interface
+      String test1(@Valid ValidateParam param);
+  }
+  
+  @Data
+  public class ValidateParam {
+      @NotNull(groups = ValidateService.Test1.class, message = "name can not be null")
+      private String name;
+  
+      @NotNull(groups = ValidateService.Test2.class, message = "age can not be null")
+      private Integer age;
+  
+      @NotNull(message = "sex can not be null")
+      private Integer sex;
+    
+    	public interface Test1{}
+      public interface Test2{}
+  }
+  ```
+
+  

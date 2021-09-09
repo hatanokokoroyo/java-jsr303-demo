@@ -5,16 +5,13 @@ import com.jsr.demo.service.ValidateService;
 import javax.validation.constraints.NotNull;
 
 public class ValidateServiceParam {
-//    @NotNull(groups = ValidateService.Test1.class, message = "name can not be null")
     @NotNull(groups = Test1.class, message = "name can not be null")
     private String name;
 
-//    @NotNull(groups = ValidateService.Test2.class, message = "age can not be null")
     @NotNull(groups = Test2.class, message = "age can not be null")
     private Integer age;
 
     @NotNull(message = "sex can not be null")
-//    @NotNull(message = "sex can not be null", groups = {ValidateService.Test1.class, ValidateService.Test2.class})
     @NotNull(message = "sex can not be null", groups = {Test1.class, Test2.class})
     private Integer sex;
 
